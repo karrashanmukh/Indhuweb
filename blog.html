@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Blogs - My Website</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="blog-page">
+  <h1>Upload & Read Blogs</h1>
+
+  <form id="uploadForm" onsubmit="uploadBlog(event)">
+    <label for="title">Blog Title *</label>
+    <input type="text" id="title" required placeholder="Enter blog title" />
+    <label for="content">Blog Content *</label>
+    <textarea id="content" rows="6" required placeholder="Write your blog here..."></textarea>
+    <button type="submit">Upload Blog</button>
+  </form>
+
+  <section id="blogsList">
+    <h2>All Blogs</h2>
+    <!-- Blogs will be shown here -->
+  </section>
+
+  <script>
+    const blogsKey = 'myBlogs';
+
+    function uploadBlog(event) {
+      event.preventDefault();
+
+      const title = document.getElementById('title').value.trim();
+      const content = document.getElementById('content').value.trim();
+
+      if (!title || !content) {
+        alert('Please fill all fields.');
+        return;
+      }
+
+      const blog = {
+        title,
+        content,
+        date: new Date().toLocaleString()
+      };
+
+      let blogs = JSON.parse(localStorage.getItem(blogsKey)) || [];
+      blogs.unshift(blog); // newest first
+      localStorage.setItem(blogsKey, JSON.stringify(blogs));
+
+      alert('Blog uploaded successfully!');
+      document.getElementById('uploadForm').reset();
+      displayBlogs();
+    }
+
+    function displayBlogs() {
+      const blogs = JSON.parse(localStorage.getItem(blogsKey)) || [];
+      const container = document.getElementById('blogsList');
+      container.innerHTML = '<h2>All Blogs</h2>';
+
+      if (blogs.length === 0) {
+        container.innerHTML += '<p>No blogs uploaded yet.</p>';
+        return;
+      }
+
+      blogs.forEach(blog => {
+        const article = document.createElement('article');
+        article.innerHTML = `
+          <h2>${blog.title}</h2>
+          <small>Uploaded on: ${blog.date}</small>
+          <p>${blog.content}</p>
+        `;
+        container.appendChild(article);
+      });
+    }
+
+    // Display blogs on page load
+    displayBlogs();
+  </script>
+</body>
+</html>

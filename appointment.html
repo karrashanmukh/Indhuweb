@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Book Appointment</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body class="appointment-page">
+  <h1 class="appointment-title">Book an Appointment</h1>
+
+  <form id="appointmentForm" onsubmit="handlePayment(event)">
+    <div class="form-group">
+      <input type="text" id="name" placeholder=" " required />
+      <label for="name">Full Name *</label>
+    </div>
+    <div class="form-group">
+      <input type="email" id="email" placeholder=" " required />
+      <label for="email">Email Address *</label>
+    </div>
+    <div class="form-group">
+      <input type="tel" id="phone" placeholder=" " />
+      <label for="phone">Phone Number</label>
+    </div>
+    <div class="form-group">
+      <input type="date" id="date" placeholder=" " required />
+      <label for="date">Select Date *</label>
+    </div>
+    <div class="form-group">
+      <input type="time" id="time" placeholder=" " required />
+      <label for="time">Select Time *</label>
+    </div>
+    <div class="form-group">
+      <textarea id="message" rows="4" placeholder=" "></textarea>
+      <label for="message">Additional Message</label>
+    </div>
+    <button type="submit">Pay & Book Appointment</button>
+  </form>
+
+  <script>
+    function handlePayment(event) {
+      event.preventDefault();
+
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const date = document.getElementById('date').value;
+      const time = document.getElementById('time').value;
+
+      if (!name || !email || !date || !time) {
+        alert('Please fill in all required fields.');
+        return;
+      }
+
+      var options = {
+        "key": "rzp_test_YourTestKeyHere", // Replace with your Razorpay key
+        "amount": 50000, // amount in paise = 500.00 INR
+        "currency": "INR",
+        "name": "My Company",
+        "description": "Appointment Booking",
+        "handler": function (response){
+          alert("Payment successful! Payment ID: " + response.razorpay_payment_id);
+          saveAppointment();
+        },
+        "prefill": {
+          "name": name,
+          "email": email
+        },
+        "theme": {
+          "color": "#3399cc"
+        }
+      };
+      var rzp1 = new Razorpay(options);
+      rzp1.open();
+    }
+
+    function saveAppointment() {
+      const appointment = {
+        name: document.getElementById('name').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        phone: document.getElementById('phone').value.trim(),
+        date: document.getElementById('date').value,
+        time: document.getElementById('time').value,
+        message: document.getElementById('message').value.trim(),
+        bookedAt: new Date().toISOString()
+      };
+
+      let appointments = JSON.parse(localStorage.getItem('appointments')) || [];
+      appointments.push(appointment);
+      localStorage.setItem('appointments', JSON.stringify(appointments));
+
+      alert("Your appointment is booked successfully!");
+      document.getElementById('appointmentForm').reset();
+    }
+  </script>
+</body>
+</html>
